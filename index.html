@@ -109,39 +109,14 @@
       background: var(--ink-2);
       border: 1px solid var(--border);
       border-radius: var(--radius-lg);
-      height: 210px;
       display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      position: relative;
       overflow: hidden;
-      cursor: pointer;
-      text-align: center;
-      padding: 1rem;
     }
 
     .upload-panel img {
-      position: absolute;
-      inset: 0;
       width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: none;
-    }
-
-    /* Force show the reference image */
-    #refPreview {
+      height: auto;
       display: block;
-      object-fit: contain;
-      background: var(--ink-2);
-    }
-
-    .upload-text {
-      color: var(--text-secondary);
-      font-size: 13px;
-      z-index: 1;
-      pointer-events: none;
     }
 
     .btn-primary,
