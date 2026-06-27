@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Show The Love - Royal Portrait Generator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Inter:wght@400;500&display=swap"
+    rel="stylesheet" />
+  <style>
+    /* ── Inherited Styles from your project ── */
+    :root {
+      --gold: #C9A84C;
+      --gold-light: #E8C97A;
+      --gold-dim: #7A6230;
+      --ink: #0E0C09;
+      --ink-2: #1A1710;
+      --ink-3: #252219;
+      --ink-4: #302C22;
+      --text-primary: #F0E6CC;
+      --text-secondary: #B8A882;
+      --text-muted: #7A7060;
+      --border: rgba(201, 168, 76, 0.18);
+      --border-strong: rgba(201, 168, 76, 0.35);
+      --success-text: #7DC98A;
+      --radius-sm: 6px;
+      --radius: 10px;
+      --radius-lg: 16px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      min-height: 100vh;
+      background-color: var(--ink);
+      color: var(--text-primary);
+      font-family: 'Inter', system-ui, sans-serif;
+      font-size: 15px;
+      line-height: 1.6;
+      display: flex;
+      justify-content: center;
+      padding: 3rem 1.5rem;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 680px;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+
+    .header h1 {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-size: clamp(2rem, 5vw, 3rem);
+      color: var(--gold-light);
+      margin-bottom: 0.5rem;
+    }
+
+    .header p {
+      color: var(--text-secondary);
+      font-size: 14px;
+    }
+
+    .field-label {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-bottom: 7px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      display: block;
+    }
+
+    input[type="text"] {
+      background: var(--ink-3);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text-primary);
+      font-family: inherit;
+      font-size: 14px;
+      padding: 10px 14px;
+      width: 100%;
+      margin-bottom: 1.5rem;
+      outline: none;
+    }
+
+    input[type="text"]:focus {
+      border-color: var(--gold-dim);
+    }
+
+    .workspace {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin-bottom: 1.5rem;
+    }
+
+    .upload-panel {
+      background: var(--ink-2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      height: 210px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+      cursor: pointer;
+      text-align: center;
+      padding: 1rem;
+    }
+
+    .upload-panel img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: none;
+    }
+
+    /* Force show the reference image */
+    #refPreview {
+      display: block;
+      object-fit: contain;
+      background: var(--ink-2);
+    }
+
+    .upload-text {
+      color: var(--text-secondary);
+      font-size: 13px;
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    .btn-primary,
+    .btn-download,
+    .btn-secondary {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      padding: 14px 20px;
+      font-size: 15px;
+      font-weight: 500;
+      border-radius: var(--radius);
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-bottom: 1rem;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #2A2210, #1E1B0E);
+      border: 1px solid var(--gold-dim);
+      color: var(--gold-light);
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+    }
+
+    .btn-primary:hover {
+      border-color: var(--gold);
+      box-shadow: 0 4px 12px rgba(201, 168, 76, 0.1);
+    }
+
+    .btn-download {
+      background: transparent;
+      border: 1px solid var(--border-strong);
+      color: var(--gold);
+    }
+
+    .btn-download:hover {
+      background: var(--ink-3);
+      border-color: var(--gold);
+    }
+
+    .btn-secondary {
+      background: var(--ink-3);
+      border: 1px solid var(--border);
+      color: var(--text-primary);
+    }
+
+    .btn-secondary:hover {
+      border-color: var(--gold-dim);
+    }
+
+    .result-card {
+      background: var(--ink-2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 2rem 1.5rem;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    /* Utility */
+    .hidden {
+      display: none !important;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="container">
+    <header class="header">
+      <h1>Show The Love</h1>
+      <p>Configure your custom cinematic portrait.</p>
+    </header>
+
+    <div id="dataCollectionScreen">
+      <label class="field-label">Your Name</label>
+      <input type="text" id="userName" placeholder="Enter your name..." required />
+
+      <label class="field-label">Assets</label>
+      <div class="workspace">
+
+        <div class="upload-panel" onclick="document.getElementById('userFile').click()">
+          <span class="upload-text" id="userPlaceholderText">Upload Your Photo</span>
+          <img id="userPreview" alt="Your Photo" />
+          <input type="file" id="userFile" class="hidden" accept="image/*" onchange="handleUserUpload(event)" />
+        </div>
+
+        <div class="upload-panel" style="cursor: default;">
+          <img id="refPreview" src="rao_bahadur_poster.jpg" alt="Reference" />
+        </div>
+      </div>
+
+      <button class="btn-primary" onclick="prepareGeneration()">Prepare Portrait Kit</button>
+    </div>
+
+    <div id="redirectDashboard" class="hidden">
+      <button class="btn-download" style="width: auto; padding: 8px 16px; font-size: 13px;" onclick="goBack()">←
+        Back</button>
+
+      <div class="result-card" style="margin-top: 1rem;">
+        <div style="text-align: center; margin-bottom: 2rem;">
+          <h2 style="font-family: 'Cormorant Garamond', serif; color: var(--gold-light); font-size: 1.8rem;">Your Kit is
+            Ready</h2>
+          <p style="color: var(--text-secondary); font-size: 14px; margin-top: 8px;">
+            First, download the reference image. Then copy the prompt and generate with ChatGPT.
+            <strong style="color: var(--gold-light);">Make sure to upload both your photo and the reference
+              image!</strong>
+          </p>
+        </div>
+
+        <div style="text-align: center; margin-bottom: 1.5rem;">
+          <div style="display: flex; justify-content: center; gap: 20px;">
+            <div style="display: flex; flex-direction: column; align-items: center; gap: 8px;">
+              <span
+                style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em;">Your
+                Photo</span>
+              <img id="userPreviewSecondScreen" alt="Your Photo"
+                style="width: 120px; height: 160px; object-fit: cover; border-radius: var(--radius); border: 1px solid var(--border);" />
+            </div>
+            <div style="display: flex; flex-direction: column; align-items: center; gap: 8px;">
+              <span
+                style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em;">Reference</span>
+              <img src="rao_bahadur_poster.jpg" alt="Reference Image"
+                style="width: 120px; height: 160px; object-fit: cover; border-radius: var(--radius); border: 1px solid var(--border);" />
+            </div>
+          </div>
+          <br />
+          <button class="btn-download" style="width: auto; margin-top: 15px; padding: 10px 20px; font-size: 14px;"
+            onclick="downloadBothAssets()">⬇ Download Both Images</button>
+        </div>
+
+        <label class="field-label">Custom Prompt</label>
+        <textarea id="promptDisplay" readonly
+          style="width: 100%; height: 120px; background: var(--ink-3); color: var(--text-primary); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 12px; margin-bottom: 10px; font-family: inherit; font-size: 13px; line-height: 1.5; outline: none; resize: none;"></textarea>
+
+        <button class="btn-secondary" id="copyPromptBtn" onclick="copyDynamicPrompt()">Copy Custom Prompt</button>
+
+        <div style="margin-top: 2rem; border-top: 1px solid var(--border); padding-top: 1.5rem; text-align: center;">
+          <label class="field-label">Ready to Generate?</label>
+          <p style="color: var(--text-muted); font-size: 12px; margin-bottom: 1rem;">Upload both your photo and the
+            downloaded reference image, and paste the custom prompt into ChatGPT.</p>
+          <button class="btn-primary" onclick="redirectToAI('chatgpt')"
+            style="background: #10a37f; border-color: #10a37f; color: white; font-family: 'Inter', sans-serif; font-weight: 500; letter-spacing: normal;">
+            Generate with ChatGPT
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let userFile = null;
+    let generatedPrompt = "";
+
+    function handleUserUpload(event) {
+      const file = event.target.files[0];
+      if (file) {
+        userFile = file;
+        const preview = document.getElementById('userPreview');
+        preview.src = URL.createObjectURL(file);
+        preview.style.display = 'block';
+        document.getElementById('userPlaceholderText').style.display = 'none';
+      }
+    }
+
+    function prepareGeneration() {
+      const userName = document.getElementById('userName').value.trim();
+
+      if (!userName) {
+        alert("Please enter your name.");
+        return;
+      }
+      if (!userFile) {
+        alert("Please upload a photo of yourself.");
+        return;
+      }
+
+      // Convert name to uppercase for the poster typography instruction
+      const upperName = userName.toUpperCase();
+
+      // Generate the custom prompt with the user's name injected into the typography instruction
+      generatedPrompt = `Create a cinematic movie poster using the exact structural composition of the second reference image. Preserve the background, ALL miniature figures (including the boy on the turban), and wardrobe perfectly intact. The prominent typography on the poster MUST clearly and accurately spell exactly "${upperName} BAHADUR" without any typos or extra letters. Crucially, the face MUST be the exact person from the first reference image, preserving his distinct facial structure and nose so he is instantly recognizable. Transform his expression to be dignified, noble, and intensely serious, with eyes fully open and a clear, focused gaze. Apply the cinematic styling to HIS face: add thick bushy silver eyebrows (kept relatively straight, avoiding a scowl), a massive, heavy, dense grey-and-black mustache that remains thick throughout but has ends curling dynamically upward in a royal handlebar style, and flowing salt-and-pepper hair beneath the turban. Maintain the perfectly upright posture and dramatic, shadowy lighting.
+
+[Note: I am attaching two images. Use the first image for the face, and the second image as the exact structural composition and style reference. If I haven't attached any images yet, please politely stop and explicitly ask me to upload my user image and the reference image before proceeding.]`;
+
+      // Switch screens
+      document.getElementById('promptDisplay').value = generatedPrompt;
+      document.getElementById('userPreviewSecondScreen').src = document.getElementById('userPreview').src;
+      document.getElementById('dataCollectionScreen').classList.add('hidden');
+      document.getElementById('redirectDashboard').classList.remove('hidden');
+    }
+
+    function goBack() {
+      document.getElementById('dataCollectionScreen').classList.remove('hidden');
+      document.getElementById('redirectDashboard').classList.add('hidden');
+    }
+
+    function copyDynamicPrompt() {
+      navigator.clipboard.writeText(generatedPrompt).then(() => {
+        const copyBtn = document.getElementById('copyPromptBtn');
+        const originalText = copyBtn.textContent;
+
+        copyBtn.textContent = "✓ Prompt Copied Successfully!";
+        copyBtn.style.borderColor = "var(--success-text)";
+        copyBtn.style.color = "var(--success-text)";
+
+        setTimeout(() => {
+          copyBtn.textContent = originalText;
+          copyBtn.style.borderColor = "";
+          copyBtn.style.color = "";
+        }, 2500);
+      }).catch(err => {
+        alert("Failed to copy. Your browser might be blocking clipboard access.");
+      });
+    }
+
+    function downloadBothAssets() {
+      // Download user image
+      if (userFile) {
+        const userSrc = URL.createObjectURL(userFile);
+        const aUser = document.createElement('a');
+        aUser.href = userSrc;
+        aUser.download = userFile.name || 'your_photo.jpg';
+        document.body.appendChild(aUser);
+        aUser.click();
+        document.body.removeChild(aUser);
+        setTimeout(() => URL.revokeObjectURL(userSrc), 1000);
+      }
+
+      // Download reference image
+      setTimeout(() => {
+        const refSrc = document.getElementById('refPreview').src;
+        const aRef = document.createElement('a');
+        aRef.href = refSrc;
+        aRef.download = 'rao_bahadur_poster.jpg';
+        document.body.appendChild(aRef);
+        aRef.click();
+        document.body.removeChild(aRef);
+      }, 100); // slight delay to prevent browser blocking multiple simultaneous downloads
+    }
+
+    function redirectToAI(platform) {
+      const encodedPrompt = encodeURIComponent(generatedPrompt);
+      let targetUrl = "";
+
+      if (platform === 'chatgpt') {
+        targetUrl = `https://chatgpt.com/?q=${encodedPrompt}`;
+      }
+
+      window.open(targetUrl, '_blank');
+    }
+  </script>
+</body>
+
+</html>
