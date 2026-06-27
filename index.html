@@ -99,9 +99,10 @@
 
     .workspace {
       display: grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: 1fr;
+      max-width: 320px;
+      margin: 0 auto 1.5rem auto;
       gap: 14px;
-      margin-bottom: 1.5rem;
     }
 
     .upload-panel {
@@ -228,13 +229,6 @@
 
       <label class="field-label">Assets</label>
       <div class="workspace">
-
-        <div class="upload-panel" onclick="document.getElementById('userFile').click()">
-          <span class="upload-text" id="userPlaceholderText">Upload Your Photo</span>
-          <img id="userPreview" alt="Your Photo" />
-          <input type="file" id="userFile" class="hidden" accept="image/*" onchange="handleUserUpload(event)" />
-        </div>
-
         <div class="upload-panel" style="cursor: default;">
           <img id="refPreview" src="rao_bahadur_poster.jpg" alt="Reference" />
         </div>
@@ -253,20 +247,13 @@
             Ready</h2>
           <p style="color: var(--text-secondary); font-size: 14px; margin-top: 8px;">
             First, download the reference image. Then copy the prompt and generate with ChatGPT.
-            <strong style="color: var(--gold-light);">Make sure to upload both your photo and the reference
+            <strong style="color: var(--gold-light);">Make sure to upload your photo along with this reference
               image!</strong>
           </p>
         </div>
 
         <div style="text-align: center; margin-bottom: 1.5rem;">
           <div style="display: flex; justify-content: center; gap: 20px;">
-            <div style="display: flex; flex-direction: column; align-items: center; gap: 8px;">
-              <span
-                style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em;">Your
-                Photo</span>
-              <img id="userPreviewSecondScreen" alt="Your Photo"
-                style="width: 120px; height: 160px; object-fit: cover; border-radius: var(--radius); border: 1px solid var(--border);" />
-            </div>
             <div style="display: flex; flex-direction: column; align-items: center; gap: 8px;">
               <span
                 style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em;">Reference</span>
@@ -276,7 +263,7 @@
           </div>
           <br />
           <button class="btn-download" style="width: auto; margin-top: 15px; padding: 10px 20px; font-size: 14px;"
-            onclick="downloadBothAssets()">⬇ Download Both Images</button>
+            onclick="downloadRefAsset()">⬇ Download Reference Image</button>
         </div>
 
         <label class="field-label">Custom Prompt</label>
@@ -299,19 +286,7 @@
   </div>
 
   <script>
-    let userFile = null;
     let generatedPrompt = "";
-
-    function handleUserUpload(event) {
-      const file = event.target.files[0];
-      if (file) {
-        userFile = file;
-        const preview = document.getElementById('userPreview');
-        preview.src = URL.createObjectURL(file);
-        preview.style.display = 'block';
-        document.getElementById('userPlaceholderText').style.display = 'none';
-      }
-    }
 
     function prepareGeneration() {
       const userName = document.getElementById('userName').value.trim();
@@ -320,22 +295,25 @@
         alert("Please enter your name.");
         return;
       }
-      if (!userFile) {
-        alert("Please upload a photo of yourself.");
-        return;
-      }
 
       // Convert name to uppercase for the poster typography instruction
       const upperName = userName.toUpperCase();
 
       // Generate the custom prompt with the user's name injected into the typography instruction
-      generatedPrompt = `Create a cinematic movie poster using the exact structural composition of the second reference image. Preserve the background, ALL miniature figures (including the boy on the turban), and wardrobe perfectly intact. The prominent typography on the poster MUST clearly and accurately spell exactly "${upperName} BAHADUR" without any typos or extra letters. Crucially, the face MUST be the exact person from the first reference image, preserving his distinct facial structure and nose so he is instantly recognizable. Transform his expression to be dignified, noble, and intensely serious, with eyes fully open and a clear, focused gaze. Apply the cinematic styling to HIS face: add thick bushy silver eyebrows (kept relatively straight, avoiding a scowl), a massive, heavy, dense grey-and-black mustache that remains thick throughout but has ends curling dynamically upward in a royal handlebar style, and flowing salt-and-pepper hair beneath the turban. Maintain the perfectly upright posture and dramatic, shadowy lighting.
+      generatedPrompt = `Create a cinematic movie poster using the exact structural composition of the Reference Image. Preserve the background, ALL miniature figures (including the boy on the turban), and wardrobe perfectly intact. The prominent typography on the poster MUST clearly and accurately spell exactly "${upperName} BAHADUR" without any typos or extra letters. Crucially, the face MUST be the exact person from the User Image, preserving his distinct facial structure and nose so he is instantly recognizable. Transform his expression to be dignified, noble, and intensely serious, with eyes fully open and a clear, focused gaze. Apply the cinematic styling to HIS face: add thick bushy silver eyebrows (kept relatively straight, avoiding a scowl), a massive, heavy, dense grey-and-black mustache that remains thick throughout but has ends curling dynamically upward in a royal handlebar style, and flowing salt-and-pepper hair beneath the turban. Maintain the perfectly upright posture and dramatic, shadowy lighting.
 
-[Note: I am attaching two images. Use the first image for the face, and the second image as the exact structural composition and style reference. If I haven't attached any images yet, please politely stop and explicitly ask me to upload my user image and the reference image before proceeding.]`;
+[SYSTEM INSTRUCTION REGARDING ATTACHED IMAGES]
+I will attach two images for this request:
+1. A regular photo of a person's face (The "User Image").
+2. A cinematic movie poster featuring a man in royal attire with a turban (The "Reference Image").
+
+Before generating anything, you MUST verify the attached images:
+- If NO images are attached, STOP and reply EXACTLY with: "Please upload both your photo and the downloaded reference image from the website to proceed."
+- If ONLY ONE image is attached, analyze it to determine if it is the User Image (a regular face) or the Reference Image (the royal poster). Then, politely ask me to upload the specific missing image.
+- If BOTH images are attached, proceed immediately with the image generation using the detailed instructions above.`;
 
       // Switch screens
       document.getElementById('promptDisplay').value = generatedPrompt;
-      document.getElementById('userPreviewSecondScreen').src = document.getElementById('userPreview').src;
       document.getElementById('dataCollectionScreen').classList.add('hidden');
       document.getElementById('redirectDashboard').classList.remove('hidden');
     }
@@ -364,29 +342,15 @@
       });
     }
 
-    function downloadBothAssets() {
-      // Download user image
-      if (userFile) {
-        const userSrc = URL.createObjectURL(userFile);
-        const aUser = document.createElement('a');
-        aUser.href = userSrc;
-        aUser.download = userFile.name || 'your_photo.jpg';
-        document.body.appendChild(aUser);
-        aUser.click();
-        document.body.removeChild(aUser);
-        setTimeout(() => URL.revokeObjectURL(userSrc), 1000);
-      }
-
+    function downloadRefAsset() {
       // Download reference image
-      setTimeout(() => {
-        const refSrc = document.getElementById('refPreview').src;
-        const aRef = document.createElement('a');
-        aRef.href = refSrc;
-        aRef.download = 'rao_bahadur_poster.jpg';
-        document.body.appendChild(aRef);
-        aRef.click();
-        document.body.removeChild(aRef);
-      }, 100); // slight delay to prevent browser blocking multiple simultaneous downloads
+      const refSrc = document.getElementById('refPreview').src;
+      const aRef = document.createElement('a');
+      aRef.href = refSrc;
+      aRef.download = 'rao_bahadur_poster.jpg';
+      document.body.appendChild(aRef);
+      aRef.click();
+      document.body.removeChild(aRef);
     }
 
     function redirectToAI(platform) {
